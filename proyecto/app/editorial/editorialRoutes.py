@@ -52,7 +52,7 @@ def modifyEditorial(id):
                 return editorial, 200
     return {"error": "Request must be json"}, 415
 
-@editorialesBP.delete('/<int:id')
+@editorialesBP.delete('/<int:id>')
 def deleteEditorial(id):
     editoriales = leeFichero(ficheroEditoriales) 
     for editorial in editoriales:
