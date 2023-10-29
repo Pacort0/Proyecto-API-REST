@@ -1,5 +1,5 @@
 import requests
-api_url = "http://localhost:5050/editoriales/3"
+api_url = "http://localhost:5050/editoriales/5"
 
 response = requests.delete(api_url)
 
