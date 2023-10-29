@@ -13,9 +13,18 @@ def find_next_id():
     editoriales = leeFichero(ficheroEditoriales)#Leemos el fichero de editoriales y guardamos los datos en una variable
     max = editoriales[0]["id"]#Declaramos una variable max y le asignamos el primer id de la lista de editoriales
     for editorial in editoriales:#Iteramos en la lista de editoriales con un bucle for
-        if editorial["id"] > max and editorial["id"] == max+1: #Si el id de la editorial actual es mayor que el id máximo guardado y es el valor consecutivo
+        if editorial["id"] == max+1: #Si el id de la editorial actual es mayor que el id máximo guardado y es el valor consecutivo
             max = editorial["id"] #Cambiamos el valor de la variable 'max'
     return max+1 #Devolvemos el primer id libre que hayamos encontrado o el siguiente al último de la lista
+
+#Creamos una función que nos ayude a encontrar el primer hueco libre en la lista 
+def find_next_spot():
+    editoriales = leeFichero(ficheroEditoriales) #Leemos el fichero de editoriales y guardamos los datos en una variable
+    hueco = 0 #Creamos una variable donde guardaremos el hueco libre que encontremos
+    for editorial in editoriales: #Iteramos en la lista de editoriales con un bucle for
+        if editorial["id"] == hueco+1: #Si el id de la editorial es igual a la última posición+1
+            hueco = editorial["id"] #Asignamos a la variable hueco el id de la editorial actual
+    return hueco #Devolvemos la variable
 
 @editorialesBP.get('/')  #Método HTTP para obtener las editorales de la base de datos
 def getEditoriales():
@@ -35,8 +44,10 @@ def addEditorial():
     editoriales = leeFichero(ficheroEditoriales) #Leemos el fichero de editoriales y guardamos los datos en una variable
     if request.is_json: #Si el request introducido es un json bien formado
         editorial  = request.get_json() #Creamos una variable para guardar la editorial a introducir
-        editorial["id"] = find_next_id() #Le asignamos un id libre a la editorial
-        editoriales.append(editorial) #Agregamos la editorial a la lista
+        posicion = find_next_spot()
+        newId = find_next_id()
+        editorial["id"] = newId #Le asignamos un id libre a la editorial
+        editoriales.insert(posicion, editorial) #Agregamos la editorial a la lista
         escribeFichero(ficheroEditoriales, editoriales) #Reescribimos el fichero con los nuevos cambios
         return editorial, 201 #Mostramos el libro introducido
     return {"error": "Request must be json"} #En caso de que el request no sea un json bien formado, mostramos el mensaje de error pertinente
@@ -53,7 +64,7 @@ def modifyEditorial(id):
                     editorial[element] = newEditorial[element] #Cambiamos todos los campos que coincidan con los campos de la editorial
                 escribeFichero(ficheroEditoriales, editoriales) #Reescribimos el fichero con los nuevos cambios
                 return editorial, 200 #Devolvemos la editorial cambiada
-            return {"error": "Editorial no encontrada"}, 404 #Si no se encuentra la editorial a editar, mostramos un mensaje de error
+        return {"error": "Editorial no encontrada"}, 404 #Si no se encuentra la editorial a editar, mostramos un mensaje de error
     return {"error": "Request must be json"}, 415 #Si el request no es un json bien formado, mostramos un mensaje de error
 
 @editorialesBP.delete('/<int:id>') #Método HTTP para eliminar una editorial

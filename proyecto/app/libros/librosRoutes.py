@@ -11,9 +11,18 @@ def find_next_id():
     libros = leeFichero(ficheroLibros) #Leemos el fichero de libros y guardamos los datos en una variable
     max = libros[0]["Id"] #Declaramos una variable max y le asignamos el primer id de la lista de libros
     for libro in libros: #Iteramos en la lista de libros con un bucle for
-        if libro["Id"] > max and libro["Id"] == max+1: #Si el id del libro actual es mayor que el id máximo guardado y es el valor consecutivo
+        if libro["Id"] == max+1: #Si el id del libro actual es mayor que el id máximo guardado y es el valor consecutivo
             max = libro["Id"] #Cambiamos el valor de la variable 'max'
     return max+1 #Devolvemos el primer id libre que hayamos encontrado o el siguiente al último de la lista
+
+#Creamos una función que nos ayude a encontrar el primer hueco libre en la lista 
+def find_next_spot():
+    libros = leeFichero(ficheroLibros) #Leemos el fichero de libros y guardamos los datos en una variable
+    hueco = 0 #Creamos una variable donde guardaremos el hueco libre que encontremos
+    for libro in libros: #Iteramos en la lista de libros con un bucle for
+        if libro["Id"] == hueco+1: #Si el id del libro es igual a la última posición+1
+            hueco = libro["Id"] #Asignamos a la variable hueco el id de la editorial actual
+    return hueco #Devolvemos la variable
 
 @librosBP.get('/') #Método HTTP para obtener los libros de la base de datos
 def getLibros(): 
@@ -33,8 +42,10 @@ def addLibro():
     libros = leeFichero(ficheroLibros) #Leemos el fichero de libros y guardamos los datos en una variable
     if request.is_json: #Comprobamos que el request sea un json correctamente formado
         libro  = request.get_json() #Creamos una variable para guardar el libro que se quiere introducir
-        libro["Id"] = find_next_id() #Asignamos una id al libro que deseamos introducir
-        libros.append(libro) #Añadimos el libro a la lista de libros
+        position = find_next_spot()
+        newId = find_next_id()
+        libro["Id"] = newId #Asignamos una id al libro que deseamos introducir
+        libros.insert(position, libro) #Añadimos el libro a la lista de libros
         escribeFichero(ficheroLibros, libros) #Reescribimos el fichero de libros con la nueva aportación
         return libro, 201 #Devolvemos el libro que se acaba de añadir
     return {"error": "Request must be json"}, 415 #Si el request no era un tipo json bien formado, mostramos el error correspondiente
@@ -51,7 +62,7 @@ def modifyLibro(id):
                     libro[element] = newLibro[element] #Cambiamos todos los campos que coincidan con los campos del Libro
                 escribeFichero(ficheroLibros, libros) #Reescribimos el fichero de libros con los cambios pertinentes
                 return libro, 200 #Devolvemos el libro con sus datos cambiados
-            return {"error": "Libro no encontrado"}, 404
+        return {"error": "Libro no encontrado"}, 404
     return {"error": "Request must be json"}, 415 #Si el request no era un tipo json bien formado, mostramos el error pertinente
 
 @librosBP.delete('/<int:id>') #Método HTTP para borrar un Libro
