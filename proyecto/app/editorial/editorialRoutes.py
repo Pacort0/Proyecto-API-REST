@@ -42,7 +42,7 @@ def addEditorial():
 @editorialesBP.patch('/<int:id>')
 def modifyEditorial(id):
     editoriales = leeFichero(ficheroEditoriales)
-    newEditorial = request.get_json
+    newEditorial = request.get_json()
     if request.is_json:
         for editorial in editoriales:
             if editorial["id"] == id:
@@ -55,11 +55,28 @@ def modifyEditorial(id):
 @editorialesBP.delete('/<int:id>')
 def deleteEditorial(id):
     editoriales = leeFichero(ficheroEditoriales) 
+    libros = leeFichero(ficheroLibros)
     for editorial in editoriales:
         if editorial["id"] == id:
-            editoriales.remove(editorial[id])
+            editoriales.remove(editorial)
+            for libro in libros:
+                if libro["IdEditorial"] == id:
+                    libros.remove(libro)
+                    escribeFichero(ficheroLibros, libros)
             escribeFichero(ficheroEditoriales, editoriales)
             return {}, 200
     return {"error": "Editorial no encontrada"}, 404
+
+@editorialesBP.get('/<int:id>/libros')
+def get_libros(id):
+    list = []
+    libros = leeFichero("proyecto\datos_Editoriales\libros.json")
+    for libro in libros:
+        if libro["IdEditorial"] == id:
+            list.append(libro)
+    if len(list) > 0:
+        return list, 200
+    else:
+        return {"error": "No hay libros para esta editorial"}, 404
 
 
