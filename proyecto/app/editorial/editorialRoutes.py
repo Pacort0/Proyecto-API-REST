@@ -1,5 +1,6 @@
 from utils.funciones import leeFichero, escribeFichero
 from flask import *
+from flask_jwt_extended import jwt_required
 
 #Creamos una variable en la que guardamos la ruta de fichero con los datos de las editoriales
 ficheroEditoriales =  "proyecto/datos_Editoriales/editoriales.json"
@@ -40,6 +41,7 @@ def getEditorial(id):
     return{"error": "Editorial no encontrada"}, 404 #Si no se encuentra la editorial, mostramos el error pertinente
 
 @editorialesBP.post('/') #Método HTTP para agregar una editorial
+@jwt_required()
 def addEditorial():
     editoriales = leeFichero(ficheroEditoriales) #Leemos el fichero de editoriales y guardamos los datos en una variable
     if request.is_json: #Si el request introducido es un json bien formado
@@ -54,6 +56,7 @@ def addEditorial():
 
 @editorialesBP.put('/<int:id>')  #Método HTTP para editar todos los datos de una Editorial
 @editorialesBP.patch('/<int:id>') #Método HTTP para editar uno o varios datos de una Editorial
+@jwt_required()
 def modifyEditorial(id):
     editoriales = leeFichero(ficheroEditoriales) #Leemos el fichero de editoriales y guardamos los datos en una variable
     newEditorial = request.get_json() #Creamos una variable para guardar los cambios que se desean realizar
@@ -68,6 +71,7 @@ def modifyEditorial(id):
     return {"error": "Request must be json"}, 415 #Si el request no es un json bien formado, mostramos un mensaje de error
 
 @editorialesBP.delete('/<int:id>') #Método HTTP para eliminar una editorial
+@jwt_required()
 def deleteEditorial(id):
     editoriales = leeFichero(ficheroEditoriales) #Leemos el fichero de editoriales y guardamos los datos en una variable
     for editorial in editoriales: #Iteramos dentro de la lista de editoriales

@@ -1,5 +1,6 @@
 from utils.funciones import leeFichero, escribeFichero
 from flask import *
+from flask_jwt_extended import jwt_required
 
 #Creamos una variable en la que guardamos la ruta de fichero con los datos de los libros
 ficheroLibros = "proyecto/datos_Editoriales/libros.json"
@@ -38,6 +39,7 @@ def getLibro(id):
     return {"error":"Libro no encontrado"}, 404 #En caso de no encontrar el libro, mostramos el error correspondiente
 
 @librosBP.post('/') #Método HTTP para crear un nuevo Libro
+@jwt_required()
 def addLibro():
     libros = leeFichero(ficheroLibros) #Leemos el fichero de libros y guardamos los datos en una variable
     if request.is_json: #Comprobamos que el request sea un json correctamente formado
@@ -52,6 +54,7 @@ def addLibro():
 
 @librosBP.put('/<int:id>') #Método HTTP para editar todos los datos de un Libro
 @librosBP.patch('/<int:id>') #Método HTTP para editar uno o varios datos de un Libro
+@jwt_required()
 def modifyLibro(id):
     libros = leeFichero(ficheroLibros) #Leemos el fichero de libros y guardamos los datos en una variable
     newLibro = request.get_json() #Creamos una variable para guardar los cambios que se desean realizar
@@ -66,6 +69,7 @@ def modifyLibro(id):
     return {"error": "Request must be json"}, 415 #Si el request no era un tipo json bien formado, mostramos el error pertinente
 
 @librosBP.delete('/<int:id>') #Método HTTP para borrar un Libro
+@jwt_required()
 def deleteLibro(id):
     libros = leeFichero(ficheroLibros) #Leemos el fichero de libros y guardamos los datos en una variable
     for libro in libros: #Iteramos en la lista de libros

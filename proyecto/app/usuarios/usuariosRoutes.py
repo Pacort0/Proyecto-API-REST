@@ -26,11 +26,11 @@ def loginUser():
     usuarios = leeFichero(ficheroUsuarios)
     if request.is_json:
         usuario = request.get_json()
-        nombreUsuario = usuario['usuario']
-        password = usuario['password'].encode('utf-8')
+        nombreUsuario = usuario["usuario"]
+        password = usuario["password"].encode('utf-8')
         for userFile in usuarios:
-            if userFile['usuario'] == nombreUsuario:
-                passwordFile = userFile['password']
+            if userFile["usuario"] == nombreUsuario:
+                passwordFile = userFile["password"]
                 if bcrypt.checkpw(password, bytes.fromhex(passwordFile)):
                     token = create_access_token(identity=nombreUsuario)
                     return{'token':token}, 200
