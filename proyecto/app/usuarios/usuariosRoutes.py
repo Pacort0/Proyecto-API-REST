@@ -4,7 +4,7 @@ from flask_jwt_extended import *
 import bcrypt
 
 usuariosBP = Blueprint('usuarios', __name__)
-ficheroUsuarios = "../proyecto/datos_Editoriales/usuarios.json"
+ficheroUsuarios = "proyecto/datos_Editoriales/usuarios.json"
 
 @usuariosBP.post('/')
 def addUsuario():
@@ -18,16 +18,16 @@ def addUsuario():
         usuarios.append(usuario)  
         escribeFichero(ficheroUsuarios, usuarios)
         token = create_access_token(identity=usuario["usuario"])
-        return {'token':token}, 201
+        return {'token': token}, 201
     return{"error":"Request must be json"}
 
 @usuariosBP.get('/')
 def loginUser():
     usuarios = leeFichero(ficheroUsuarios)
     if request.is_json:
-        usuario = request.get()
-        nombreUsuario = usuario["usuario"]
-        password = usuario["password"].encode('utf-8')
+        usuario = request.get_json()
+        nombreUsuario = usuario['usuario']
+        password = usuario['password'].encode('utf-8')
         for userFile in usuarios:
             if userFile['usuario'] == nombreUsuario:
                 passwordFile = userFile['password']
@@ -37,4 +37,4 @@ def loginUser():
                 else:
                     return{'error': 'La contraseña es errónea'}, 401
         return {'error':'Usuario no encontrado'}, 404
-    return{'error':'Request must be JSON'}
+    return{'error':'Request must be JSON'},415  

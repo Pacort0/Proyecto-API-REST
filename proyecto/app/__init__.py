@@ -6,7 +6,7 @@ from flask_jwt_extended import JWTManager
 
 #Creamos una varianle de tipo Flask
 app = Flask(__name__)
-app.config['Miguel_pelate'] = 'la clave'
+app.config['SECRET_KEY'] = 'la_clave'
 jwt = JWTManager(app)
 
 #Registramos los blueprints de las Editoriales y de los Libros
